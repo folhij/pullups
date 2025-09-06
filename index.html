@@ -4,30 +4,128 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Тренировки подтягиваний</title>
-  <style>
-    body { margin: 0; font-family: Arial, sans-serif; background: #0b0c10; color: #fff; text-align: center; }
-    .container { padding: 20px; max-width: 400px; margin: auto; }
-    h1 { font-size: 20px; font-weight: bold; margin-bottom: 10px; }
-    .sub { color: #aaa; margin-bottom: 15px; }
-    .highlight { color: #ff9800; font-weight: bold; }
-    .status { font-size: 22px; margin-bottom: 10px; }
-    .row { display: flex; align-items: center; justify-content: center; gap: 25px; margin: 20px 0; }
-    .btn-rep { font-size: 32px; width: 70px; height: 70px; line-height: 70px; border-radius: 50%; background: #222; border: 2px solid #555; cursor: pointer; user-select: none; }
-    .circle-container { position: relative; width: 200px; height: 200px; }
-    .circle-content { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-weight: bold; border-radius: 50%; cursor: pointer; user-select: none; }
-    .work-circle { background: #ff5722; font-size: 60px; }
-    .circle-svg { transform: rotate(-90deg); }
-    .circle-bg { fill: none; stroke: #4caf50; stroke-width: 10; }
-    .circle-progress { fill: none; stroke: #888; stroke-width: 10; stroke-linecap: round; transition: stroke-dashoffset 0.2s linear; }
-    .footer { margin-top: 25px; font-size: 14px; color: #ccc; }
-    input { padding: 10px; font-size: 16px; border-radius: 8px; border: none; text-align: center; margin-top: 10px; }
-    .btn-start { margin-top: 15px; background: #2196f3; color: #fff; padding: 12px 20px; border-radius: 10px; font-size: 18px; border: none; cursor: pointer; }
-    .btn-test { margin-top: 15px; background: #ff9800; color: #fff; padding: 12px 20px; border-radius: 10px; font-size: 18px; border: none; cursor: pointer; }
-    .day-block { margin: 10px 0; padding: 10px; border-radius: 10px; }
-    .day-past { background: #1b5e20; color: #ccc; }
-    .day-current { background: #ff9800; font-weight: bold; cursor: pointer; }
-    .day-future { background: #333; color: #777; }
-  </style>
+<style>
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #0b0c10;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* всегда на весь экран */
+  }
+  .container {
+    width: 100%;
+    max-width: 420px; /* ограничение под телефон */
+    height: 100vh;
+    padding: 16px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    text-align: center;
+  }
+  h1 {
+    font-size: 6vw;
+    margin: 10px 0;
+  }
+  .sub { 
+    color: #aaa; 
+    margin-bottom: 12px; 
+    font-size: 4vw;
+  }
+  .status { 
+    font-size: 5vw; 
+    margin-bottom: 12px; 
+  }
+  .row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5vw;
+    margin: 5vh 0;
+  }
+  .btn-rep {
+    font-size: 8vw;
+    width: 14vw;
+    height: 14vw;
+    line-height: 14vw;
+    border-radius: 50%;
+    background: #222;
+    border: 2px solid #555;
+    cursor: pointer;
+    user-select: none;
+  }
+  .circle-container {
+    position: relative;
+    width: 40vw;
+    height: 40vw;
+    max-width: 200px;
+    max-height: 200px;
+  }
+  .circle-content {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    border-radius: 50%;
+    cursor: pointer;
+    user-select: none;
+  }
+  .work-circle {
+    background: #ff5722;
+    font-size: 12vw;
+  }
+  .circle-svg {
+    transform: rotate(-90deg);
+    width: 100%;
+    height: 100%;
+  }
+  .circle-bg { fill: none; stroke: #4caf50; stroke-width: 10; }
+  .circle-progress {
+    fill: none; stroke: #888; stroke-width: 10;
+    stroke-linecap: round; transition: stroke-dashoffset 0.2s linear;
+  }
+  .footer {
+    margin-top: auto;
+    font-size: 3.5vw;
+    color: #ccc;
+  }
+  input {
+    width: 80%;
+    padding: 12px;
+    font-size: 5vw;
+    border-radius: 8px;
+    border: none;
+    text-align: center;
+    margin-top: 10px;
+  }
+  .btn-start, .btn-test {
+    margin-top: 15px;
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    font-size: 5vw;
+    border: none;
+    cursor: pointer;
+  }
+  .btn-start { background: #2196f3; color: #fff; }
+  .btn-test { background: #ff9800; color: #fff; }
+  .day-block {
+    margin: 8px 0;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 4vw;
+  }
+  .day-past { background: #1b5e20; color: #ccc; }
+  .day-current { background: #ff9800; font-weight: bold; cursor: pointer; }
+  .day-future { background: #333; color: #777; }
+</style>
+
 </head>
 <body>
 <div class="container">
@@ -316,3 +414,4 @@ gotoHome();
 </script>
 </body>
 </html>
+
