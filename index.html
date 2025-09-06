@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Тренировки подтягиваний</title>
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif; background: #0b0c10; color: #fff; text-align: center; }
+    .container { padding: 20px; max-width: 400px; margin: auto; }
+    h1 { font-size: 20px; font-weight: bold; margin-bottom: 10px; }
+    .sub { color: #aaa; margin-bottom: 15px; }
+    .highlight { color: #ff9800; font-weight: bold; }
+    .status { font-size: 22px; margin-bottom: 10px; }
+    .row { display: flex; align-items: center; justify-content: center; gap: 25px; margin: 20px 0; }
+    .btn-rep { font-size: 32px; width: 70px; height: 70px; line-height: 70px; border-radius: 50%; background: #222; border: 2px solid #555; cursor: pointer; user-select: none; }
+    .circle-container { position: relative; width: 200px; height: 200px; }
+    .circle-content { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-weight: bold; border-radius: 50%; cursor: pointer; user-select: none; }
+    .work-circle { background: #ff5722; font-size: 60px; }
+    .circle-svg { transform: rotate(-90deg); }
+    .circle-bg { fill: none; stroke: #4caf50; stroke-width: 10; }
+    .circle-progress { fill: none; stroke: #888; stroke-width: 10; stroke-linecap: round; transition: stroke-dashoffset 0.2s linear; }
+    .footer { margin-top: 25px; font-size: 14px; color: #ccc; }
+    input { padding: 10px; font-size: 16px; border-radius: 8px; border: none; text-align: center; margin-top: 10px; }
+    .btn-start { margin-top: 15px; background: #2196f3; color: #fff; padding: 12px 20px; border-radius: 10px; font-size: 18px; border: none; cursor: pointer; }
+    .btn-test { margin-top: 15px; background: #ff9800; color: #fff; padding: 12px 20px; border-radius: 10px; font-size: 18px; border: none; cursor: pointer; }
+    .day-block { margin: 10px 0; padding: 10px; border-radius: 10px; }
+    .day-past { background: #1b5e20; color: #ccc; }
+    .day-current { background: #ff9800; font-weight: bold; cursor: pointer; }
+    .day-future { background: #333; color: #777; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Домашнее меню -->
+  <div id="home">
+    <h1>МОИ ТРЕНИРОВКИ</h1>
+    <p>Максимум: <span id="maxPullups">0</span></p>
+    <p>Всего подтягиваний: <span id="lifeTotal">0</span></p>
+    <p>Уровень: <span id="level">1</span> | Тренировок: <span id="sessions">0</span></p>
+
+    <div id="workoutList"></div>
+
+    <button class="btn-start" onclick="startWorkoutFromPlan()">СТАРТ</button>
+    <button class="btn-test" onclick="gotoSetup()">ТЕСТ</button>
+  </div>
+
+
+  <!-- Экран ввода максимума -->
+  <div id="setup" style="display:none;">
+    <h1>ТЕСТ НА МАКСИМУМ</h1>
+    <div class="sub">Введите ваш максимум подтягиваний:</div>
+    <input type="number" id="maxInput" min="1">
+    <br>
+    <button class="btn-start" onclick="saveMax()">Сохранить</button>
+  </div>
+
+  <!-- Тренировка -->
+  <div id="workout" style="display:none;">
+    <div class="set-sequence" id="sequence"></div>
+    <div class="total" id="totalText"></div>
+
+    <div id="workBlock">
+      <div class="status" style="color:#ff9800;">РАБОТА</div>
+      <div class="row">
+        <div class="btn-rep" onclick="adjustReps(-1)">–</div>
+        <div class="circle-container">
+          <div class="circle-content work-circle" onclick="finishSet()" id="workReps">0</div>
+        </div>
+        <div class="btn-rep" onclick="adjustReps(1)">+</div>
+      </div>
+    </div>
+
+    <div id="restBlock" style="display:none;">
+      <div class="status" style="color:#4caf50;">ОТДЫХ</div>
+      <div class="row">
+        <div class="btn-rep" onclick="changeRest(-30)">–</div>
+        <div class="circle-container">
+          <svg class="circle-svg" width="200" height="200">
+            <circle class="circle-bg" cx="100" cy="100" r="90"/>
+            <circle id="progressCircle" class="circle-progress" cx="100" cy="100" r="90"/>
+          </svg>
+          <div class="circle-content" onclick="skipRest()" id="restTimer">03:00</div>
+        </div>
+        <div class="btn-rep" onclick="changeRest(30)">+</div>
+      </div>
+    </div>
+
+    <div class="footer" id="tip"></div>
+  </div>
+
+  <!-- Результаты -->
+  <div id="result" style="display:none;">
+    <h2>Тренировка завершена!</h2>
+    <p id="finalTotal"></p>
+    <button class="btn-start" onclick="gotoHome()">На главную</button>
+  </div>
+</div>
+
+<script>
+let workout = [];
+let step = 0;
+let totalCompleted = 0;
+let restTime = 180;
+let totalRestTime = 180;
+let restInterval;
+let currentReps = 0;
+
+// Данные пользователя
+let userData = JSON.parse(localStorage.getItem("pullupData")) || {
+  max: null,
+  day: 1,
+  level: 1,
+  sessions: 0,
+  lifeTotal: 0,
+  plan: []
+};
+
+// Круг для отдыха
+const circle = document.getElementById("progressCircle");
+const radius = 90;
+const circumference = 2 * Math.PI * radius;
+circle.style.strokeDasharray = circumference;
+circle.style.strokeDashoffset = 0;
+
+// --- План генерации ---
+function generatePlan(max) {
+  const avg = Math.round(max / 2);
+  let base = [avg - 1, avg + 2, avg - 2, avg - 1, avg + 2]; 
+  let plan = [base];
+
+  for (let d = 2; d <= 5; d++) {
+    let prev = [...plan[plan.length - 1]];
+    let extra = Math.floor(Math.random() * 4) + 2; // +2…5 к сумме
+
+    while (extra > 0) {
+      let idx = Math.floor(Math.random() * prev.length);
+      prev[idx] += 1;
+      extra--;
+    }
+
+    plan.push(prev);
+  }
+  return plan;
+}
+
+
+
+// --- Навигация ---
+function gotoHome(){
+  document.getElementById("home").style.display = "block";
+  document.getElementById("setup").style.display = "none";
+  document.getElementById("workout").style.display = "none";
+  document.getElementById("result").style.display = "none";
+  renderHome();
+}
+
+function gotoSetup(){
+  document.getElementById("home").style.display = "none";
+  document.getElementById("setup").style.display = "block";
+}
+
+function saveMax(){
+  const max = parseInt(document.getElementById("maxInput").value);
+  if(!max || max < 1) return alert("Введите корректное число!");
+  userData.max = max;
+  userData.plan = generatePlan(max);
+  userData.day = 1; // начинаем новый цикл
+  saveData();
+  gotoHome();
+}
+
+// --- Главное меню ---
+function renderHome(){
+  if(!userData.max){
+    gotoSetup();
+    return;
+  }
+  document.getElementById("maxPullups").textContent = userData.max;
+  document.getElementById("lifeTotal").textContent = userData.lifeTotal;
+  document.getElementById("level").textContent = userData.level;
+  document.getElementById("sessions").textContent = userData.sessions;
+
+  const list = document.getElementById("workoutList");
+  list.innerHTML = "";
+  userData.plan.forEach((sets, idx)=>{
+    let div = document.createElement("div");
+    div.classList.add("day-block");
+    if(idx+1 < userData.day){
+      div.classList.add("day-past");
+      div.textContent = `День ${idx+1} ✅\n${sets.join(" ")}`;
+    } else if(idx+1 === userData.day){
+      div.classList.add("day-current");
+      div.innerHTML = `День ${idx+1}<br>${sets.join(" ")}`;
+      div.onclick = ()=> startWorkoutFromPlan();
+    } else {
+      div.classList.add("day-future");
+      div.innerHTML = `День ${idx+1}<br>${sets.join(" ")}`;
+    }
+    list.appendChild(div);
+  });
+}
+
+// --- Тренировка ---
+function startWorkoutFromPlan() {
+  workout = userData.plan[userData.day-1];
+  step = 0;
+  totalCompleted = 0;
+
+  document.getElementById("home").style.display = "none";
+  document.getElementById("workout").style.display = "block";
+  updateSequence();
+  showStep();
+}
+
+function updateSequence() {
+  const totalPlanned = workout.reduce((a,b)=>a+b,0);
+  document.getElementById("totalText").textContent = "Всего: " + totalPlanned;
+  let seq = workout.map((n,i)=> i===step? `<span class='highlight'>${n}</span>`: n).join(" ");
+  document.getElementById("sequence").innerHTML = seq;
+}
+
+function showStep() {
+  if(step >= workout.length) { endWorkout(); return; }
+  currentReps = workout[step];
+  document.getElementById("workBlock").style.display = "block";
+  document.getElementById("restBlock").style.display = "none";
+  document.getElementById("workReps").textContent = currentReps;
+  updateSequence();
+  document.getElementById("tip").textContent = "Сделайте подход и нажмите на круг";
+}
+
+function adjustReps(delta) {
+  currentReps = Math.max(1, currentReps + delta);
+  workout[step] = currentReps;
+  document.getElementById("workReps").textContent = currentReps;
+  updateSequence();
+}
+
+function finishSet() {
+  totalCompleted += currentReps;
+  step++;
+  if(step < workout.length) startRest();
+  else endWorkout();
+}
+
+function startRest() {
+  totalRestTime = 180;
+  restTime = 180;
+  document.getElementById("workBlock").style.display = "none";
+  document.getElementById("restBlock").style.display = "block";
+  updateRestTimer();
+  updateProgress();
+  document.getElementById("tip").textContent = "Нажмите на круг, чтобы пропустить отдых";
+
+  clearInterval(restInterval);
+  restInterval = setInterval(()=>{
+    restTime--;
+    if(restTime<0) restTime=0;
+    updateRestTimer();
+    updateProgress();
+    if(restTime<=0) skipRest();
+  },1000);
+}
+
+function updateRestTimer() {
+  const min = Math.floor(restTime/60);
+  const sec = restTime%60;
+  document.getElementById("restTimer").textContent = `${min}:${sec.toString().padStart(2,'0')}`;
+}
+
+function updateProgress() {
+  const elapsed = totalRestTime - restTime;
+  const progress = circumference * (elapsed / totalRestTime);
+  circle.style.strokeDashoffset = circumference - progress;
+}
+
+function changeRest(sec) {
+  restTime += sec;
+  if(restTime < 0) restTime = 0;
+  if(restTime > totalRestTime) restTime = totalRestTime;
+  updateRestTimer();
+  updateProgress();
+}
+
+function skipRest() {
+  clearInterval(restInterval);
+  showStep();
+}
+
+function endWorkout() {
+  document.getElementById("workout").style.display = "none";
+  document.getElementById("result").style.display = "block";
+  document.getElementById("finalTotal").textContent = "Всего подтягиваний: " + totalCompleted;
+
+  userData.lifeTotal += totalCompleted;
+  userData.sessions++;
+  if(userData.day === 5){
+    // Тест на максимум
+    userData.day = 1;
+    userData.level++;
+    userData.max = null; // заставим пройти тест
+    userData.plan = [];
+  } else {
+    userData.day++;
+  }
+  saveData();
+}
+
+function saveData(){
+  localStorage.setItem("pullupData", JSON.stringify(userData));
+}
+
+// при загрузке
+gotoHome();
+</script>
+</body>
+</html>
