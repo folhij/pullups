@@ -1,118 +1,216 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Тренировки подтягиваний</title>
-  <style>
-    body { margin: 0; font-family: Arial, sans-serif; background: #0b0c10; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; }
-    .container { width: 100%; max-width: 420px; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 15px; box-sizing: border-box; text-align: center; }
-    h1 { font-size: 20px; font-weight: bold; margin-bottom: 10px; }
-    .sub { color: #aaa; margin-bottom: 15px; }
-    .highlight { color: #ff9800; font-weight: bold; }
-    .status { font-size: 22px; margin-bottom: 10px; }
-    .row { display: flex; align-items: center; justify-content: center; gap: 25px; margin: 20px 0; }
-    .btn-rep { font-size: 32px; width: 70px; height: 70px; line-height: 70px; border-radius: 50%; background: #222; border: 2px solid #555; cursor: pointer; user-select: none; text-align: center; }
-    .circle-container { position: relative; width: 240px; height: 240px; display: flex; align-items: center; justify-content: center; }
-    .circle-content { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; align-items: center; justify-content: center; font-weight: bold; border-radius: 50%; cursor: pointer; user-select: none; }
-    .work-circle { background: #ff5722; font-size: 60px; width: 160px; height: 160px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-    .circle-svg { transform: rotate(-90deg); }
-    .circle-bg { fill: none; stroke: #4caf50; stroke-width: 10; }
-    .circle-progress { fill: none; stroke: #888; stroke-width: 10; stroke-linecap: round; transition: stroke-dashoffset 0.2s linear; }
-    .footer { margin-top: 25px; font-size: 14px; color: #ccc; }
-    input { padding: 10px; font-size: 16px; border-radius: 8px; border: none; text-align: center; margin-top: 10px; width: 80%; }
-    .btn-start { margin-top: 15px; background: #2196f3; color: #fff; padding: 12px 20px; border-radius: 10px; font-size: 18px; border: none; cursor: pointer; }
-    .btn-test { margin-top: 15px; background: #ff9800; color: #fff; padding: 12px 20px; border-radius: 10px; font-size: 18px; border: none; cursor: pointer; }
-    .day-block { margin: 10px 0; padding: 10px; border-radius: 10px; }
-    .day-past { background: #1b5e20; color: #ccc; }
-    .day-current { background: #ff9800; font-weight: bold; cursor: pointer; }
-    .day-future { background: #333; color: #777; }
-    /* Центрируем рабочий и таймер-блок */
-    #workBlock, #restBlock { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-    /* Таймер крупнее */
-    #restTimer { font-size: 32px; font-weight: bold; }
-    /* Ряд кнопок для таймера */
-    .rest-row { display: flex; align-items: center; justify-content: center; gap: 25px; margin-top: 20px; }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>План подтягиваний</title>
+<style>
+  :root{
+    --bg:#0b0c10;
+    --muted:#777;
+    --accent:#ff9800;
+    --accent-2:#ff5722;
+    --glass: rgba(255,255,255,0.03);
+    --divider: rgba(255,255,255,0.06);
+    --white-weak: rgba(255,255,255,0.08);
+  }
+  html,body{height:100%;margin:0;background:var(--bg);color:#fff;font-family:Inter,Arial,Helvetica,sans-serif}
+  .app{max-width:420px;margin:0 auto;height:100%;display:flex;flex-direction:column;justify-content:flex-start;padding:18px 16px 90px 16px;box-sizing:border-box;}
+  h1{margin:0;font-size:20px;font-weight:700;text-align:center}
+  .muted{color:var(--muted);font-size:13px}
+
+  /* top stats */
+  .top-stats{margin-top:12px;text-align:center}
+  .total-big{font-size:64px;font-weight:800;line-height:1;color:#fff;text-shadow:0 6px 8px rgba(0,0,0,0.6)}
+  .label-small{font-size:13px;color:#cfcfcf;letter-spacing:0.06em;margin-top:4px}
+
+  /* progress max */
+  .max-row{display:flex;align-items:center;justify-content:space-between;margin-top:12px;gap:8px}
+  .max-left{font-size:13px;color:var(--muted)}
+  .progress-wrap{flex:1;margin:0 8px}
+  .progress-track{height:10px;background:#222;border-radius:999px;overflow:hidden;border:1px solid rgba(255,255,255,0.02)}
+  .progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent-2));transition:width .25s}
+
+  /* workout list cards (transparent, separator lines) */
+  .list{margin-top:16px;border-radius:14px;overflow:hidden}
+  .day-row{background:transparent;padding:18px 12px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-bottom:1px solid var(--divider)}
+  .day-row:last-child{border-bottom:none}
+  .day-title{font-size:16px;margin-bottom:6px}
+  .day-sets{font-size:20px;letter-spacing:6px}
+  .day-current{transform:scale(1.03);font-weight:700;color:#fff;background:linear-gradient(180deg, rgba(255,152,0,0.06), rgba(255,152,0,0.03));border-radius:10px;padding:16px}
+  .day-past{opacity:0.7;color:#cfcfcf}
+  .day-future{opacity:0.6;color:var(--muted)}
+
+  /* center workout screen */
+  .screen{display:none}
+  .screen.visible{display:block}
+  .sequence{margin-top:8px;font-size:18px;color:#ddd}
+  .seq-item{display:inline-block;padding:2px 6px;border-radius:6px;margin:0 3px}
+  .seq-current{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#0b0c10;font-weight:800}
+  .seq-next-rest{outline:1px dashed rgba(255,255,255,0.08);color:#fff;font-weight:700}
+
+  /* circle + buttons */
+  .work-block,.rest-block{display:flex;flex-direction:column;align-items:center;gap:14px;margin-top:20px}
+  .controls-row{display:flex;align-items:center;justify-content:center;gap:20px;width:100%}
+  .btn-round{width:70px;height:70px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid rgba(255,255,255,0.08);background:transparent;color:#fff;font-size:28px;cursor:pointer;user-select:none}
+  .btn-round:active{transform:scale(.98)}
+  .circle-outer{width:260px;height:260px;position:relative;display:flex;align-items:center;justify-content:center}
+  .circle-center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:220px;height:220px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff}
+  .work-circle{background:var(--accent);box-shadow:0 6px 20px rgba(255,87,34,0.12);font-size:56px}
+  #restTimer{font-size:40px;font-weight:700;color:#fff}
+
+  /* svg progress circle styles: accent background, grey overlay for remaining */
+  svg{display:block}
+  .circle-bg{fill:none;stroke:var(--accent);stroke-width:14}
+  .circle-progress{fill:none;stroke:rgba(255,255,255,0.12);stroke-width:14;stroke-linecap:round;transition:stroke-dashoffset .2s linear}
+
+  /* tip text */
+  .tip{color:var(--muted);font-size:14px;margin-top:6px}
+
+  /* bottom nav (transparent buttons, separator line between) */
+  .bottom{position:fixed;left:0;right:0;bottom:0;height:78px;background:linear-gradient(180deg, rgba(11,12,16,0.0), rgba(11,12,16,0.85));display:flex;align-items:center;justify-content:center;z-index:40}
+  .nav-inner{max-width:420px;display:flex;align-items:center;justify-content:space-between;padding:10px 18px;width:100%}
+  .nav-btn{background:transparent;border:none;color:#cfcfcf;font-size:13px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer}
+  .nav-btn .icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:transparent;border:1px solid rgba(255,255,255,0.03)}
+  .nav-sep{width:1px;height:36px;background:var(--divider);margin:0 8px}
+  .start-big{width:86px;height:86px;border-radius:50%;background:linear-gradient(180deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;border:none;font-size:18px;box-shadow:0 10px 30px rgba(255,87,34,0.16);cursor:pointer}
+
+  /* result screen */
+  .result-screen{display:none;position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:86%;max-width:360px;background:linear-gradient(180deg, rgba(11,12,16,0.95), rgba(18,18,20,0.95));border-radius:14px;padding:18px;z-index:80;border:1px solid rgba(255,255,255,0.04)}
+  .result-screen h2{margin:0 0 6px 0}
+  .result-row{display:flex;justify-content:space-between;margin-top:12px;color:#ddd}
+  .result-close{margin-top:14px;padding:10px 14px;border-radius:10px;border:none;background:var(--accent);color:#0b0c10;font-weight:700;cursor:pointer;width:100%}
+
+  /* responsive tweaks */
+  @media (max-width:420px){
+    .circle-outer{width:68vw;height:68vw}
+    .circle-center{width:58vw;height:58vw}
+    .work-circle{font-size:8vw}
+    #restTimer{font-size:6.4vw}
+  }
+</style>
 </head>
 <body>
-<div class="container">
+<div class="app">
 
-  <!-- Домашнее меню -->
-  <div id="home">
-    <h1>МОИ ТРЕНИРОВКИ</h1>
-    <p>Максимум: <span id="maxPullups">0</span></p>
-    <p>Всего подтягиваний: <span id="lifeTotal">0</span></p>
-    <p>Уровень: <span id="level">1</span> | Тренировок: <span id="sessions">0</span></p>
-
-    <div id="workoutList"></div>
-
-    <button class="btn-start" onclick="startWorkoutFromPlan()">СТАРТ</button>
-    <button class="btn-test" onclick="gotoSetup()">ТЕСТ</button>
+  <!-- TOP -->
+  <div class="top-stats">
+    <div class="total-big" id="lifeTotal">0</div>
+    <div class="label-small">ПОДТЯГИВАНИЯ</div>
   </div>
 
-  <!-- Экран ввода максимума -->
-  <div id="setup" style="display:none;">
-    <h1>НАВАЛИ НА МАКСИМУМ</h1>
-    <div class="sub">Сколько раз до отказа?</div>
-    <input type="number" id="maxInput" min="1">
-    <br>
-    <button class="btn-start" onclick="saveMax()">Сохранить</button>
+  <!-- MAX + level -->
+  <div style="margin-top:12px;display:flex;flex-direction:column;gap:6px">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div class="muted">УРОВЕНЬ: <span id="levelName">-</span></div>
+      <div class="muted">СТАТУС: <span id="statusName">-</span></div>
+    </div>
+
+    <div class="max-row">
+      <div class="max-left">Максимум: <b id="maxPullups">0</b>/50</div>
+      <div class="progress-wrap">
+        <div class="progress-track"><div id="maxProgress" class="progress-fill"></div></div>
+      </div>
+      <div style="width:36px"></div>
+    </div>
   </div>
 
-  <!-- Тренировка -->
-  <div id="workout" style="display:none; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-    <div class="set-sequence" id="sequence"></div>
-    <div class="total" id="totalText"></div>
+  <!-- list -->
+  <div class="list" id="workoutList" style="margin-top:14px">
+    <!-- dynamic items -->
+  </div>
 
-    <div id="workBlock">
-      <div class="status" style="color:#ff9800;">ХАРДИМ</div>
-      <div class="row">
-        <div class="btn-rep" onclick="adjustReps(-1)">–</div>
-        <div class="circle-container">
-          <div class="circle-content work-circle" onclick="finishSet()" id="workReps">0</div>
+  <!-- workout screen (hidden until start) -->
+  <div id="screenWorkout" class="screen">
+    <div style="display:flex;flex-direction:column;align-items:center">
+      <div id="dayTitle" style="font-weight:700;font-size:20px">День 1</div>
+      <div id="sequence" class="sequence">2 3 2 2 3</div>
+    </div>
+
+    <!-- work -->
+    <div id="workBlock" class="work-block" style="display:none">
+      <div class="status" style="color:var(--accent)">ВОРКАЕМ</div>
+      <div class="controls-row">
+        <button class="btn-round" id="decRep" title="Уменьшить">−</button>
+
+        <div class="circle-outer">
+          <svg viewBox="0 0 260 260" style="position:absolute;left:0;top:0;width:100%;height:100%">
+            <!-- decorative background stroke not used for timer -->
+            <circle class="circle-bg" cx="130" cy="130" r="100"></circle>
+          </svg>
+
+          <div id="workCircle" class="circle-center work-circle">0</div>
         </div>
-        <div class="btn-rep" onclick="adjustReps(1)">+</div>
+
+        <button class="btn-round" id="incRep" title="Увеличить">+</button>
       </div>
     </div>
 
-<div id="restBlock" style="display:none;">
-  <div class="status" style="color:#4caf50;">СОФТИМ</div>
-  <div class="row">
-    <div class="btn-rep" onclick="changeRest(-30)">–</div>
-    <div class="circle-container">
-      <svg class="circle-svg" width="240" height="240">
-        <circle class="circle-bg" cx="120" cy="120" r="110"/>
-        <circle id="progressCircle" class="circle-progress" cx="120" cy="120" r="110"/>
-      </svg>
-      <div class="circle-content" onclick="skipRest()" id="restTimer">03:00</div>
+    <!-- rest -->
+    <div id="restBlock" class="rest-block" style="display:none">
+      <div class="status" style="color:#4caf50">ЧИЛЛИМ</div>
+      <div class="controls-row">
+        <button class="btn-round" id="decRest" title="–30 сек">−</button>
+
+        <div class="circle-outer" id="restCircleWrap">
+          <svg viewBox="0 0 260 260" class="circle-svg" style="position:absolute;left:0;top:0;width:100%;height:100%">
+            <!-- accent background = full color (filled) -->
+            <circle class="circle-bg" cx="130" cy="130" r="110"></circle>
+            <!-- overlay = grey stroke that will shrink (represents remaining) -->
+            <circle id="progressCircle" class="circle-progress" cx="130" cy="130" r="110"></circle>
+          </svg>
+          <div id="restTimer" class="circle-center">03:00</div>
+        </div>
+
+        <button class="btn-round" id="incRest" title="+30 сек">+</button>
+      </div>
     </div>
-    <div class="btn-rep" onclick="changeRest(30)">+</div>
+
+    <div class="tip" id="tipText" style="margin-top:8px">Сделай подход и нажми круг</div>
   </div>
+
 </div>
 
+<!-- result popup -->
+<div id="resultPopup" class="result-screen" style="display:none">
+  <h2 id="resultTitle">Навал окончен!</h2>
+  <div class="result-row"><div>Всего подтягиваний:</div><div id="resultTotal">0</div></div>
+  <div class="result-row"><div>Сессий всего:</div><div id="resultSessions">0</div></div>
+  <button id="closeResult" class="result-close">На базу</button>
+</div>
 
-    <div class="footer" id="tip"></div>
-  </div>
+<!-- bottom nav -->
+<div class="bottom">
+  <div class="nav-inner">
+    <button class="nav-btn" onclick="openTest()">
+      <div class="icon">🏁</div>
+      <div>TEST</div>
+    </button>
 
-  <!-- Результаты -->
-  <div id="result" style="display:none;">
-    <h2>АЙ ТАРПЕДА БРАТ </h2>
-    <p id="finalTotal"></p>
-    <button class="btn-start" onclick="gotoHome()">Закончить</button>
+    <div style="display:flex;align-items:center;gap:10px;align-self:center">
+      <div class="nav-sep" style="width:1px;height:40px;background:var(--divider)"></div>
+      <button class="start-big" id="startButton" onclick="startFromHome()">СТАРТ</button>
+      <div class="nav-sep" style="width:1px;height:40px;background:var(--divider)"></div>
+    </div>
+
+    <button class="nav-btn" onclick="changePlan()">
+      <div class="icon">🔁</div>
+      <div>CHANGE</div>
+    </button>
   </div>
 </div>
 
 <script>
-let workout = [];
-let step = 0;
-let totalCompleted = 0;
-let restTime = 180;
-let totalRestTime = 180;
-let restInterval;
-let currentReps = 0;
+/* -------------------------
+   DATA & LEVEL NAMES
+   ------------------------- */
+const LEVEL_NAMES = [
+  "Первоходец","Новичок","Босс KFC","Работяга","Дворовый кач",
+  "Железный хват","Турник-брат","Уличный кач","Прессинг","Жесткач",
+  "Турник-батя","Машина","Зверь","Стальной","Монстр",
+  "Хардкор","Турник-легенда","Бессмертный","Берсерк","Бог турника"
+];
 
-// Данные пользователя
 let userData = JSON.parse(localStorage.getItem("pullupData")) || {
   max: null,
   day: 1,
@@ -122,183 +220,370 @@ let userData = JSON.parse(localStorage.getItem("pullupData")) || {
   plan: []
 };
 
-// Круг для отдыха
-const circle = document.getElementById("progressCircle");
-const radius = 110;
-const circumference = 2 * Math.PI * radius;
-circle.style.strokeDasharray = circumference;
-circle.style.strokeDashoffset = 0;
+/* -------------------------
+   HELPERS
+   ------------------------- */
+function saveData(){ localStorage.setItem("pullupData", JSON.stringify(userData)); }
+function getLevelName(max){
+  if(!max) return LEVEL_NAMES[0];
+  let idx = Math.min(Math.floor((max-1)/3), LEVEL_NAMES.length-1);
+  return LEVEL_NAMES[idx];
+}
 
-// --- План генерации ---
-function generatePlan(max) {
-  const avg = Math.round(max / 2);
-  let base = [avg - 1, avg + 2, avg - 2, avg - 1, avg + 2]; 
+/* -------------------------
+   PLAN GENERATION
+   - if max < 4 => NEG plan (all days)
+   - else generate 5-day program with small random increments
+   ------------------------- */
+function generatePlan(max){
+  if(!max || max < 4){
+    // 5 days, each 5 sets of NEG
+    return Array.from({length:5},()=> Array.from({length:5},()=>"NEG"));
+  }
+  const avg = Math.round(max/2);
+  let base = [Math.max(1,avg-1), Math.max(1,avg+2), Math.max(1,avg-2), Math.max(1,avg-1), Math.max(1,avg+2)];
   let plan = [base];
-
-  for (let d = 2; d <= 5; d++) {
-    let prev = [...plan[plan.length - 1]];
-    let extra = Math.floor(Math.random() * 4) + 2;
-    while (extra > 0) {
-      let idx = Math.floor(Math.random() * prev.length);
-      prev[idx] += 1;
-      extra--;
+  for(let d=2; d<=5; d++){
+    let prev = [...plan[plan.length-1]];
+    // add total +2..5 distributed random
+    let extra = Math.floor(Math.random()*4)+2;
+    while(extra>0){
+      let idx = Math.floor(Math.random()*prev.length);
+      prev[idx] += 1; extra--;
     }
     plan.push(prev);
   }
   return plan;
 }
 
-// --- Навигация ---
+/* -------------------------
+   UI Render Home (menu)
+   ------------------------- */
+function renderHome(){
+  // top stats
+  document.getElementById("lifeTotal").textContent = userData.lifeTotal || 0;
+  document.getElementById("maxPullups").textContent = userData.max || 0;
+  document.getElementById("levelName").textContent = getLevelName(userData.max);
+  document.getElementById("statusName").textContent = userData.max ? getLevelName(userData.max) : "—";
+
+  // progress fill (max / 50)
+  const pct = userData.max ? Math.min(100, Math.round(userData.max/50*100)) : 0;
+  document.getElementById("maxProgress").style.width = pct + "%";
+
+  // workout list
+  const list = document.getElementById("workoutList");
+  list.innerHTML = "";
+  if(!userData.plan || userData.plan.length===0){
+    const hint = document.createElement("div");
+    hint.className = "muted";
+    hint.style.padding = "18px";
+    hint.textContent = "Нету плана — пройди тест (TEST)";
+    list.appendChild(hint);
+    return;
+  }
+  userData.plan.forEach((sets, idx)=>{
+    const row = document.createElement("div");
+    row.className = "day-row";
+    // style for active/past/future
+    if(idx+1 < userData.day) row.classList.add("day-past");
+    else if(idx+1 === userData.day) row.classList.add("day-current");
+    else row.classList.add("day-future");
+
+    // content two lines
+    const title = document.createElement("div");
+    title.className = "day-title";
+    title.textContent = `День ${idx+1}`;
+    const setsLine = document.createElement("div");
+    setsLine.className = "day-sets";
+    // show "Негативы" when NEG present
+    setsLine.textContent = sets.map(s => s === "NEG" ? "Негативы" : s).join(" ");
+
+    row.appendChild(title);
+    row.appendChild(setsLine);
+
+    // clickable only for active
+    if(idx+1 === userData.day){
+      row.style.cursor = "pointer";
+      row.onclick = ()=> startWorkoutFromPlan();
+    }
+    list.appendChild(row);
+  });
+}
+
+/* -------------------------
+   Navigation
+   ------------------------- */
+function showWorkoutScreen(){
+  document.getElementById("screenWorkout").classList.add("visible");
+  // show work block
+  document.getElementById("workBlock").style.display = "flex";
+  document.getElementById("restBlock").style.display = "none";
+}
+function hideWorkoutScreen(){
+  document.getElementById("screenWorkout").classList.remove("visible");
+}
 function gotoHome(){
-  document.getElementById("home").style.display = "block";
-  document.getElementById("setup").style.display = "none";
-  document.getElementById("workout").style.display = "none";
-  document.getElementById("result").style.display = "none";
+  hideWorkoutScreen();
   renderHome();
 }
-function gotoSetup(){
-  document.getElementById("home").style.display = "none";
-  document.getElementById("setup").style.display = "block";
-}
-function saveMax(){
-  const max = parseInt(document.getElementById("maxInput").value);
-  if(!max || max < 1) return alert("Введите корректное число!");
+function openTest(){
+  // simple prompt style for quick flow
+  const val = prompt("Введи свой максимум подтягиваний (число):");
+  const max = parseInt(val);
+  if(!max || max<1) return;
   userData.max = max;
   userData.plan = generatePlan(max);
   userData.day = 1;
   saveData();
   gotoHome();
 }
-
-// --- Главное меню ---
-function renderHome(){
-  if(!userData.max){
-    gotoSetup();
-    return;
-  }
-  document.getElementById("maxPullups").textContent = userData.max;
-  document.getElementById("lifeTotal").textContent = userData.lifeTotal;
-  document.getElementById("level").textContent = userData.level;
-  document.getElementById("sessions").textContent = userData.sessions;
-
-  const list = document.getElementById("workoutList");
-  list.innerHTML = "";
-  userData.plan.forEach((sets, idx)=>{
-    let div = document.createElement("div");
-    div.classList.add("day-block");
-    if(idx+1 < userData.day){
-      div.classList.add("day-past");
-      div.textContent = `День ${idx+1} ✅\n${sets.join(" ")}`;
-    } else if(idx+1 === userData.day){
-      div.classList.add("day-current");
-      div.innerHTML = `День ${idx+1}<br>${sets.join(" ")}`;
-      div.onclick = ()=> startWorkoutFromPlan();
-    } else {
-      div.classList.add("day-future");
-      div.innerHTML = `День ${idx+1}<br>${sets.join(" ")}`;
-    }
-    list.appendChild(div);
-  });
+function changePlan(){
+  // regenerate plan using existing max
+  if(!userData.max){ alert("Сначала введи максимум (TEST)"); return; }
+  userData.plan = generatePlan(userData.max);
+  userData.day = 1;
+  saveData();
+  gotoHome();
+}
+function startFromHome(){
+  if(!userData.plan || userData.plan.length===0){ alert("Нет плана. Сначала пройдите тест (TEST)"); return; }
+  startWorkoutFromPlan();
 }
 
-// --- Тренировка ---
-function startWorkoutFromPlan() {
-  workout = userData.plan[userData.day-1];
+/* -------------------------
+   WORKOUT FLOW
+   ------------------------- */
+let workout = [];
+let step = 0;
+let totalCompleted = 0;
+let currentReps = 0;
+
+// rest timer variables
+let totalRestTime = 180; // default 180 seconds (3 min)
+let restTime = 0;
+let restStartTime = null;
+let restInterval = null;
+
+// circle progress
+let progressCircle = null;
+let circumference = 0;
+
+function initCircles(){
+  progressCircle = document.getElementById("progressCircle");
+  if(progressCircle){
+    const r = progressCircle.getAttribute("r") || 110;
+    const rad = parseFloat(r);
+    circumference = 2 * Math.PI * rad;
+    progressCircle.style.strokeDasharray = circumference;
+    // start with overlay fully visible (no offset)
+    progressCircle.style.strokeDashoffset = 0;
+  }
+}
+window.addEventListener("load", initCircles);
+
+/* start workout with current day */
+function startWorkoutFromPlan(){
+  if(!userData.plan || userData.plan.length===0){ alert("Нет плана. Сначала пройди тест."); return; }
+  workout = userData.plan[userData.day-1].slice(); // copy
   step = 0;
   totalCompleted = 0;
-  document.getElementById("home").style.display = "none";
-  document.getElementById("workout").style.display = "flex";
+  showWorkoutScreen();
   updateSequence();
   showStep();
 }
-function updateSequence() {
-  const totalPlanned = workout.reduce((a,b)=>a+b,0);
-  document.getElementById("totalText").textContent = "Всего: " + totalPlanned;
-  let seq = workout.map((n,i)=> i===step? `<span class='highlight'>${n}</span>`: n).join(" ");
-  document.getElementById("sequence").innerHTML = seq;
+
+/* update "sequence" and total planned;
+   highlight current set or next (when resting) */
+function updateSequence(){
+  const totalPlanned = workout.reduce((acc,item)=> acc + ((item==="NEG")?8:item),0);
+  const seqEl = document.getElementById("sequence");
+  seqEl.innerHTML = "";
+  workout.forEach((it, idx)=>{
+    const span = document.createElement("span");
+    span.className = "seq-item";
+    const label = (it === "NEG") ? "NEG" : String(it);
+    // determine highlight: if we are in work mode -> highlight current step
+    // if in rest mode -> highlight next step (so they see which will be next)
+    let isActive = false;
+    if(document.getElementById("workBlock").style.display !== "none"){
+      // working mode => highlight current
+      if(idx === step) isActive = true;
+    } else {
+      // rest mode => highlight next step
+      if(idx === step) isActive = true;
+    }
+    if(isActive){
+      span.classList.add("seq-current");
+    }
+    span.textContent = label;
+    seqEl.appendChild(span);
+  });
+  document.getElementById("dayTitle").textContent = `День ${userData.day} — Всего: ${totalPlanned}`;
 }
-function showStep() {
-  if(step >= workout.length) { endWorkout(); return; }
+
+/* show current step (work or NEG) */
+function showStep(){
+  if(step >= workout.length){ endWorkout(); return; }
   currentReps = workout[step];
+  // show work block, hide rest
   document.getElementById("workBlock").style.display = "flex";
   document.getElementById("restBlock").style.display = "none";
-  document.getElementById("workReps").textContent = currentReps;
+
+  const workCircle = document.getElementById("workCircle");
+  if(currentReps === "NEG"){
+    workCircle.textContent = "NEG";
+    workCircle.style.fontSize = "36px";
+  } else {
+    workCircle.textContent = currentReps;
+    workCircle.style.fontSize = "56px";
+  }
+
+  document.getElementById("tipText").textContent = "Сделай подход и нажми круг";
   updateSequence();
-  document.getElementById("tip").textContent = "Сделайте подход и нажмите на круг";
 }
-function adjustReps(delta) {
-  currentReps = Math.max(1, currentReps + delta);
+
+/* adjust reps (only when numeric) */
+document.getElementById("incRep").addEventListener("click", ()=> adjustReps(1));
+document.getElementById("decRep").addEventListener("click", ()=> adjustReps(-1));
+function adjustReps(delta){
+  if(currentReps === "NEG") return;
+  currentReps = Math.max(1, (currentReps||1) + delta);
   workout[step] = currentReps;
-  document.getElementById("workReps").textContent = currentReps;
+  document.getElementById("workCircle").textContent = currentReps;
   updateSequence();
 }
-function finishSet() {
-  totalCompleted += currentReps;
+
+/* finishing set */
+document.getElementById("workCircle").addEventListener("click", ()=> finishSet());
+function finishSet(){
+  // add to totalCompleted (NEG counts as 8, else numeric)
+  totalCompleted += (currentReps === "NEG") ? 8 : Number(currentReps);
   step++;
-  if(step < workout.length) startRest();
-  else endWorkout();
+  if(step < workout.length){
+    startRest();
+  } else {
+    endWorkout();
+  }
 }
-function startRest() {
-  totalRestTime = 180;
-  restTime = 180;
+
+/* REST logic using Date.now() */
+document.getElementById("incRest").addEventListener("click", ()=> changeRest(30));
+document.getElementById("decRest").addEventListener("click", ()=> changeRest(-30));
+
+function startRest(){
+  totalRestTime = 180; // default 3 minutes
+  restStartTime = Date.now();
+  restTime = totalRestTime;
+  // show rest block
   document.getElementById("workBlock").style.display = "none";
   document.getElementById("restBlock").style.display = "flex";
+  document.getElementById("tipText").textContent = "Нажми на круг, чтобы пропустить отдых";
   updateRestTimer();
   updateProgress();
-  document.getElementById("tip").textContent = "Нажмите на круг, чтобы пропустить отдых";
 
   clearInterval(restInterval);
   restInterval = setInterval(()=>{
-    restTime--;
-    if(restTime<0) restTime=0;
+    const elapsed = Math.floor((Date.now() - restStartTime) / 1000);
+    restTime = Math.max(totalRestTime - elapsed, 0);
     updateRestTimer();
     updateProgress();
-    if(restTime<=0) skipRest();
-  },1000);
+    if(restTime <= 0){
+      skipRest();
+    }
+  }, 400); // 400ms tick for snappy UI
 }
-function updateRestTimer() {
+
+function updateRestTimer(){
   const min = Math.floor(restTime/60);
-  const sec = restTime%60;
+  const sec = restTime % 60;
   document.getElementById("restTimer").textContent = `${min}:${sec.toString().padStart(2,'0')}`;
+  // also update sequence highlight (highlight next set while resting)
+  updateSequence();
 }
-function updateProgress() {
-  const elapsed = totalRestTime - restTime;
-  const progress = circumference * (elapsed / totalRestTime);
-  circle.style.strokeDashoffset = circumference - progress;
+
+function updateProgress(){
+  // We want overlay (grey) to shrink from full -> 0 as rest progresses.
+  // overlay offset = circumference * (1 - remainingFraction)
+  if(!progressCircle) initCircles();
+  if(!progressCircle || circumference===0) return;
+  const remainingFraction = restTime / totalRestTime; // 1 -> full overlay, 0 -> none
+  const offset = circumference * (1 - remainingFraction); // 0..circumference
+  progressCircle.style.strokeDashoffset = offset;
 }
-function changeRest(sec) {
-  restTime += sec;
+
+/* change rest by seconds (delta positive = increase time, negative = reduce) */
+function changeRest(deltaSec){
+  // recalc restTime immediately by adjusting restStartTime accordingly
+  if(!restStartTime) restStartTime = Date.now() - (totalRestTime - restTime) * 1000;
+  restTime += deltaSec;
   if(restTime < 0) restTime = 0;
   if(restTime > totalRestTime) restTime = totalRestTime;
+  // recompute startTime so elapsed = totalRestTime - restTime
+  restStartTime = Date.now() - (totalRestTime - restTime) * 1000;
   updateRestTimer();
   updateProgress();
 }
-function skipRest() {
+
+/* skip rest */
+document.getElementById("restTimer").addEventListener("click", ()=> skipRest());
+function skipRest(){
   clearInterval(restInterval);
+  restInterval = null;
   showStep();
 }
-function endWorkout() {
-  document.getElementById("workout").style.display = "none";
-  document.getElementById("result").style.display = "block";
-  document.getElementById("finalTotal").textContent = "Всего подтягиваний: " + totalCompleted;
-  userData.lifeTotal += totalCompleted;
-  userData.sessions++;
+
+/* end workout - show result screen (no alert) */
+function endWorkout(){
+  hideWorkoutScreen();
+  // show styled result popup instead of alert
+  document.getElementById("resultTotal").textContent = totalCompleted;
+  userData.lifeTotal = (userData.lifeTotal || 0) + totalCompleted;
+  userData.sessions = (userData.sessions || 0) + 1;
+  document.getElementById("resultSessions").textContent = userData.sessions;
+  document.getElementById("resultPopup").style.display = "block";
+
   if(userData.day === 5){
     userData.day = 1;
-    userData.level++;
-    userData.max = null;
+    userData.max = null; // force new test after cycle
     userData.plan = [];
   } else {
     userData.day++;
   }
   saveData();
+  // reset state
+  totalCompleted = 0;
+  workout = [];
+  step = 0;
 }
-function saveData(){
-  localStorage.setItem("pullupData", JSON.stringify(userData));
+
+/* close result popup */
+document.getElementById("closeResult").addEventListener("click", ()=>{
+  document.getElementById("resultPopup").style.display = "none";
+  gotoHome();
+});
+
+/* finish workout button (attached to short UI) */
+function finishWorkout(){
+  endWorkout();
 }
-gotoHome();
+
+/* small helpers to expose changes */
+function startWorkoutShortcut(){
+  if(!userData.plan || userData.plan.length===0){ alert("Нету плана. Пройди TEST"); return; }
+  startWorkoutFromPlan();
+}
+
+/* initial flow */
+(function initApp(){
+  // init circles for progress
+  initCircles();
+  // render home
+  renderHome();
+})();
+
 </script>
 </body>
 </html>
+
 
 
