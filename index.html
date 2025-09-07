@@ -53,8 +53,8 @@
 
   <!-- Экран ввода максимума -->
   <div id="setup" style="display:none;">
-    <h1>ТЕСТ НА МАКСИМУМ</h1>
-    <div class="sub">Введите ваш максимум подтягиваний:</div>
+    <h1>НАВАЛИ НА МАКСИМУМ</h1>
+    <div class="sub">Сколько раз до отказа?</div>
     <input type="number" id="maxInput" min="1">
     <br>
     <button class="btn-start" onclick="saveMax()">Сохранить</button>
@@ -66,7 +66,7 @@
     <div class="total" id="totalText"></div>
 
     <div id="workBlock">
-      <div class="status" style="color:#ff9800;">РАБОТА</div>
+      <div class="status" style="color:#ff9800;">ХАРДИМ</div>
       <div class="row">
         <div class="btn-rep" onclick="adjustReps(-1)">–</div>
         <div class="circle-container">
@@ -77,7 +77,7 @@
     </div>
 
 <div id="restBlock" style="display:none;">
-  <div class="status" style="color:#4caf50;">ОТДЫХ</div>
+  <div class="status" style="color:#4caf50;">СОФТИМ</div>
   <div class="row">
     <div class="btn-rep" onclick="changeRest(-30)">–</div>
     <div class="circle-container">
@@ -97,9 +97,9 @@
 
   <!-- Результаты -->
   <div id="result" style="display:none;">
-    <h2>Тренировка завершена!</h2>
+    <h2>АЙ ТАРПЕДА БРАТ </h2>
     <p id="finalTotal"></p>
-    <button class="btn-start" onclick="gotoHome()">На главную</button>
+    <button class="btn-start" onclick="gotoHome()">Закончить</button>
   </div>
 </div>
 
@@ -300,4 +300,5 @@ gotoHome();
 </script>
 </body>
 </html>
+
 
