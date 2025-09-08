@@ -96,13 +96,25 @@ body.workout-mode .muted {
   .progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent-2));transition:width .25s}
 
   /* workout list cards (transparent, separator lines) */
-  .list{margin-top:16px;border-radius:14px;overflow:hidden}
-  .day-row{background:transparent;padding:25px 12px;display:flex;
-    flex-direction:column;align-items:center;justify-content:center;
-    border-bottom:1px solid var(--divider)}
+  .list{margin-top:16px;border-radius:14px;overflow:hidden; width:100%}
+.day-row {
+  background: transparent;
+  padding: 90x 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 2px solid var(--divider);
+
+  height: 90px; /* добавлено — фиксируем высоту */
+}
   .day-row:last-child{border-bottom:none}
   .day-title{font-size:16px;margin-bottom:6px}
-  .day-sets{font-size:69px;letter-spacing:6px}
+
+.day-sets {
+  font-size: 35px;   /* уменьшено с 50px */
+  letter-spacing: 6px;
+}
   .day-current{transform:scale(1);font-weight:700;color:#fff;
     background:linear-gradient(180deg, rgba(255,152,0,0.06),
      rgba(255,152,0,0.03));border-radius:10px;padding:16px}
