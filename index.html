@@ -5,17 +5,74 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>План подтягиваний</title>
 <style>
-  :root{
-    --bg:#0b0c10;
-    --muted:#777;
-    --accent:#ff9800;
-    --accent-2:#ff5722;
-    --glass: rgba(255,255,255,0.03);
-    --divider: rgba(255,255,255,0.06);
-    --white-weak: rgba(255,255,255,0.08);
-  }
-  html,body{height:100%;margin:0;background:var(--bg);color:#fff;font-family:Inter,Arial,Helvetica,sans-serif}
-  .app{max-width:420px;margin:0 auto;height:100%;display:flex;flex-direction:column;justify-content:flex-start;padding:18px 16px 90px 16px;box-sizing:border-box;}
+:root{
+  --bg:#211828;
+  --muted:#8097B7;
+  --accent:#49273F;
+  --accent-2:#706F8B;
+  --glass: rgba(255,255,255,0.03);
+  --divider: rgba(255,255,255,0.06);
+  --white-weak:#E1FDFE;
+  --danger:#77080E;
+  --danger-dark:#570210;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  background: #000;
+  font-family: Inter, Arial, Helvetica, sans-serif;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+body::before {
+  content:"";
+  position:fixed;
+  inset:0;
+  background:url("https://i.pinimg.com/736x/9e/77/dd/9e77ddb3b3688cdb8979dc7c6a9aa1d0.jpg") center/cover no-repeat;
+  filter: blur(10px) brightness(0.5);
+  z-index:-1;
+}
+
+/* контейнер всегда 9:16 */
+.app {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 9/16;   /* вертикальный формат */
+  max-height: 100vh;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+/* при показе workout screen скрывать меню, топ-статы и список */
+body.workout-mode .top-stats,
+body.workout-mode .list,
+body.workout-mode .bottom{
+  display:none !important;
+}
+body.workout-mode .max-row,
+body.workout-mode .muted {
+  display: none !important;
+}
+#dayTitle {
+  margin-top: 20px;
+  margin-bottom: 8px;
+}
+.sequence {
+  margin-top: 10px;
+}
+
+
+
+
   h1{margin:0;font-size:20px;font-weight:700;text-align:center}
   .muted{color:var(--muted);font-size:13px}
 
@@ -25,44 +82,135 @@
   .label-small{font-size:13px;color:#cfcfcf;letter-spacing:0.06em;margin-top:4px}
 
   /* progress max */
-  .max-row{display:flex;align-items:center;justify-content:space-between;margin-top:12px;gap:8px}
+.max-row {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
   .max-left{font-size:13px;color:var(--muted)}
-  .progress-wrap{flex:1;margin:0 8px}
+.progress-wrap {
+  width: 100%;
+  margin: 0;
+}
   .progress-track{height:10px;background:#222;border-radius:999px;overflow:hidden;border:1px solid rgba(255,255,255,0.02)}
   .progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent-2));transition:width .25s}
 
   /* workout list cards (transparent, separator lines) */
   .list{margin-top:16px;border-radius:14px;overflow:hidden}
-  .day-row{background:transparent;padding:18px 12px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-bottom:1px solid var(--divider)}
+  .day-row{background:transparent;padding:25px 12px;display:flex;
+    flex-direction:column;align-items:center;justify-content:center;
+    border-bottom:1px solid var(--divider)}
   .day-row:last-child{border-bottom:none}
   .day-title{font-size:16px;margin-bottom:6px}
-  .day-sets{font-size:20px;letter-spacing:6px}
-  .day-current{transform:scale(1.03);font-weight:700;color:#fff;background:linear-gradient(180deg, rgba(255,152,0,0.06), rgba(255,152,0,0.03));border-radius:10px;padding:16px}
-  .day-past{opacity:0.7;color:#cfcfcf}
+  .day-sets{font-size:69px;letter-spacing:6px}
+  .day-current{transform:scale(1);font-weight:700;color:#fff;
+    background:linear-gradient(180deg, rgba(255,152,0,0.06),
+     rgba(255,152,0,0.03));border-radius:10px;padding:16px}
+  .day-past{opacity:0.5;color:#cfcfcf}
   .day-future{opacity:0.6;color:var(--muted)}
 
   /* center workout screen */
-  .screen{display:none}
-  .screen.visible{display:block}
-  .sequence{margin-top:8px;font-size:18px;color:#ddd}
-  .seq-item{display:inline-block;padding:2px 6px;border-radius:6px;margin:0 3px}
-  .seq-current{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#0b0c10;font-weight:800}
-  .seq-next-rest{outline:1px dashed rgba(255,255,255,0.08);color:#fff;font-weight:700}
 
-  /* circle + buttons */
-  .work-block,.rest-block{display:flex;flex-direction:column;align-items:center;gap:14px;margin-top:20px}
+
+/* экран тренировки — фуллскрин */
+.screen {
+  display: none;
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  z-index: 50;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.screen.visible {
+  display: flex;
+}
+
+.work-block,.rest-block{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center; /* центрируем круг и кнопки */
+  gap:20px;
+}
+.status {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+.work-block .status { color: #B50000; }
+.rest-block .status { color: #aaa; }
+
+
+
   .controls-row{display:flex;align-items:center;justify-content:center;gap:20px;width:100%}
   .btn-round{width:70px;height:70px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid rgba(255,255,255,0.08);background:transparent;color:#fff;font-size:28px;cursor:pointer;user-select:none}
   .btn-round:active{transform:scale(.98)}
-  .circle-outer{width:260px;height:260px;position:relative;display:flex;align-items:center;justify-content:center}
+  .circle-outer{
+  width:260px;
+  height:260px;
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:auto; /* по центру */
+}
+
   .circle-center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:220px;height:220px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff}
-  .work-circle{background:var(--accent);box-shadow:0 6px 20px rgba(255,87,34,0.12);font-size:56px}
+  .work-circle {
+  background: #111;
+  border: 2px solid #B50000;
+  box-shadow: 0 0 15px rgba(181,0,0,0.6);
+  font-size: 56px;
+}
+
   #restTimer{font-size:40px;font-weight:700;color:#fff}
 
   /* svg progress circle styles: accent background, grey overlay for remaining */
   svg{display:block}
-  .circle-bg{fill:none;stroke:var(--accent);stroke-width:14}
-  .circle-progress{fill:none;stroke:rgba(255,255,255,0.12);stroke-width:14;stroke-linecap:round;transition:stroke-dashoffset .2s linear}
+.circle-bg {
+  fill: none;
+  stroke: #B50000;   /* красный фон */
+  stroke-width: 14;
+}
+.circle-progress {
+  fill: none;
+  stroke: #444;      /* серый сверху */
+  stroke-width: 14;
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+  transition: stroke-dashoffset .4s linear;
+}
+
+.seq-item {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 6px;
+  margin: 0 4px;
+  font-size: 20px;
+  font-weight: 600;
+  color: #777;           /* серый для будущих */
+  transition: all 0.2s ease;
+}
+
+.seq-current {
+  background: none;
+  color: #B50000;  /* красный */
+  font-weight: 900;
+}
+
+.seq-done {
+  color: #444;           /* тусклый для пройденных */
+  opacity: 0.6;
+}
+
+
+
 
   /* tip text */
   .tip{color:var(--muted);font-size:14px;margin-top:6px}
@@ -73,7 +221,93 @@
   .nav-btn{background:transparent;border:none;color:#cfcfcf;font-size:13px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer}
   .nav-btn .icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:transparent;border:1px solid rgba(255,255,255,0.03)}
   .nav-sep{width:1px;height:36px;background:var(--divider);margin:0 8px}
-  .start-big{width:86px;height:86px;border-radius:50%;background:linear-gradient(180deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;border:none;font-size:18px;box-shadow:0 10px 30px rgba(255,87,34,0.16);cursor:pointer}
+  .start-big{
+  width:86px;height:86px;
+  border-radius:50%;
+  background:#B50000;
+  color:#fff;
+  font-weight:900;
+  border:none;
+  font-size:18px;
+  cursor:pointer;
+  box-shadow:0 0 20px rgba(181,0,0,0.6);
+  transition:transform .1s, box-shadow .2s;
+}
+.start-big:active{
+  transform:scale(0.95);
+  box-shadow:0 0 30px rgba(255,0,0,0.9);
+}
+
+.btn-round{
+  width:70px;height:70px;
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  border:2px solid #B50000;
+  background:#0A0A0A;
+  color:#fff;
+  font-size:28px;
+  cursor:pointer;
+  user-select:none;
+  transition:box-shadow .2s, transform .1s;
+}
+.btn-round:hover{
+  box-shadow:0 0 10px rgba(255,0,0,0.6);
+}
+.btn-round:active{
+  transform:scale(.95);
+  background:#B50000;
+  color:#fff;
+}
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal-content {
+  background: #111;
+  padding: 20px;
+  border: 2px solid #B50000;
+  border-radius: 12px;
+  text-align: center;
+  color: #fff;
+  max-width: 300px;
+  width: 90%;
+  box-shadow: 0 0 20px rgba(181,0,0,0.8);
+}
+
+.modal-actions {
+  margin-top: 16px;
+  display: flex;
+  justify-content: space-around;
+}
+
+.modal-actions .yes {
+  background: #333;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.modal-actions .no {
+  background: #B50000;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.modal-actions button:hover {
+  opacity: 0.9;
+}
+
 
   /* result screen */
   .result-screen{display:none;position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:86%;max-width:360px;background:linear-gradient(180deg, rgba(11,12,16,0.95), rgba(18,18,20,0.95));border-radius:14px;padding:18px;z-index:80;border:1px solid rgba(255,255,255,0.04)}
@@ -88,6 +322,10 @@
     .work-circle{font-size:8vw}
     #restTimer{font-size:6.4vw}
   }
+  #testModal input {
+  font-size: 16px;
+}
+
 </style>
 </head>
 <body>
@@ -105,6 +343,8 @@
       <div class="muted">УРОВЕНЬ: <span id="levelName">-</span></div>
       <div class="muted">СТАТУС: <span id="statusName">-</span></div>
     </div>
+
+
 
     <div class="max-row">
       <div class="max-left">Максимум: <b id="maxPullups">0</b>/50</div>
@@ -193,10 +433,36 @@
       <div class="nav-sep" style="width:1px;height:40px;background:var(--divider)"></div>
     </div>
 
-    <button class="nav-btn" onclick="changePlan()">
-      <div class="icon">🔁</div>
-      <div>CHANGE</div>
+    <button class="nav-btn" onclick="openResetModal()">
+      <div class="icon">♻️</div>
+      <div>РЕСТАРТ</div>
     </button>
+  </div>
+</div>
+<!-- Модалка для теста -->
+<div id="testModal" class="modal">
+  <div class="modal-content">
+    <p>Введи свой максимум подтягиваний:</p>
+    <input type="number" id="maxInput" min="1" max="50" style="width:80%;padding:8px;border-radius:6px;border:1px solid #555;background:#222;color:#fff;text-align:center;">
+    <div class="modal-actions" style="margin-top:14px;">
+      <button onclick="confirmTest()" class="yes">OK</button>
+      <button onclick="closeTestModal()" class="no">Отмена</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- Модальное окно -->
+<div id="resetModal" class="modal">
+  <div class="modal-content">
+    <p>Ты правда хочешь удалить весь прогресс?</p>
+    <div class="modal-actions">
+      <button onclick="resetProgress()" class="yes">Да</button>
+      <button onclick="closeResetModal()" class="no">Нет</button>
+    </div>
+  </div>
+</div>
+
   </div>
 </div>
 
@@ -263,8 +529,8 @@ function renderHome(){
   // top stats
   document.getElementById("lifeTotal").textContent = userData.lifeTotal || 0;
   document.getElementById("maxPullups").textContent = userData.max || 0;
-  document.getElementById("levelName").textContent = getLevelName(userData.max);
-  document.getElementById("statusName").textContent = userData.max ? getLevelName(userData.max) : "—";
+  document.getElementById("levelName").textContent = userData.level || 1;
+document.getElementById("statusName").textContent = userData.max ? getLevelName(userData.max) : "—";
 
   // progress fill (max / 50)
   const pct = userData.max ? Math.min(100, Math.round(userData.max/50*100)) : 0;
@@ -313,13 +579,34 @@ function renderHome(){
 /* -------------------------
    Navigation
    ------------------------- */
+
+function openResetModal(){
+  document.getElementById("resetModal").style.display = "flex";
+}
+
+function closeResetModal(){
+  document.getElementById("resetModal").style.display = "none";
+}
+
+function resetProgress(){
+  localStorage.removeItem("pullupData");
+  closeResetModal();
+  openTest(); // сразу новый тест
+}
+
+
+
 function showWorkoutScreen(){
+  document.body.classList.add("workout-mode");
+
   document.getElementById("screenWorkout").classList.add("visible");
   // show work block
   document.getElementById("workBlock").style.display = "flex";
   document.getElementById("restBlock").style.display = "none";
 }
 function hideWorkoutScreen(){
+  document.body.classList.remove("workout-mode");
+
   document.getElementById("screenWorkout").classList.remove("visible");
 }
 function gotoHome(){
@@ -327,16 +614,35 @@ function gotoHome(){
   renderHome();
 }
 function openTest(){
-  // simple prompt style for quick flow
-  const val = prompt("Введи свой максимум подтягиваний (число):");
+  document.getElementById("testModal").style.display = "flex";
+}
+
+function closeTestModal(){
+  document.getElementById("testModal").style.display = "none";
+}
+
+function confirmTest(){
+  const val = document.getElementById("maxInput").value;
   const max = parseInt(val);
-  if(!max || max<1) return;
+  if(!max || max < 1){
+    alert("Введи число больше 0!");
+    return;
+  }
+
   userData.max = max;
   userData.plan = generatePlan(max);
   userData.day = 1;
+
+  // ✅ Добавляем тест в общее количество
+  userData.lifeTotal = (userData.lifeTotal || 0) + max;
+  userData.sessions = (userData.sessions || 0) + 1;
+
   saveData();
+  closeTestModal();
   gotoHome();
 }
+
+
 function changePlan(){
   // regenerate plan using existing max
   if(!userData.max){ alert("Сначала введи максимум (TEST)"); return; }
@@ -371,14 +677,17 @@ let circumference = 0;
 function initCircles(){
   progressCircle = document.getElementById("progressCircle");
   if(progressCircle){
-    const r = progressCircle.getAttribute("r") || 110;
-    const rad = parseFloat(r);
-    circumference = 2 * Math.PI * rad;
+    const r = parseFloat(progressCircle.getAttribute("r")) || 110;
+    circumference = 2 * Math.PI * r;
     progressCircle.style.strokeDasharray = circumference;
-    // start with overlay fully visible (no offset)
-    progressCircle.style.strokeDashoffset = 0;
+    progressCircle.style.strokeDashoffset = circumference; // в начале полностью серое кольцо
   }
 }
+
+
+
+
+
 window.addEventListener("load", initCircles);
 
 /* start workout with current day */
@@ -395,6 +704,8 @@ function startWorkoutFromPlan(){
 /* update "sequence" and total planned;
    highlight current set or next (when resting) */
 function updateSequence(){
+
+
   const totalPlanned = workout.reduce((acc,item)=> acc + ((item==="NEG")?8:item),0);
   const seqEl = document.getElementById("sequence");
   seqEl.innerHTML = "";
@@ -402,19 +713,26 @@ function updateSequence(){
     const span = document.createElement("span");
     span.className = "seq-item";
     const label = (it === "NEG") ? "NEG" : String(it);
+      if (idx < step) {
+    span.classList.add("seq-done");
+  }
     // determine highlight: if we are in work mode -> highlight current step
     // if in rest mode -> highlight next step (so they see which will be next)
-    let isActive = false;
-    if(document.getElementById("workBlock").style.display !== "none"){
-      // working mode => highlight current
-      if(idx === step) isActive = true;
-    } else {
-      // rest mode => highlight next step
-      if(idx === step) isActive = true;
-    }
-    if(isActive){
-      span.classList.add("seq-current");
-    }
+// determine highlight: if we are in work mode -> highlight current step
+// if in rest mode -> highlight next step (so they see which will be next)
+if (idx < step) {
+  span.classList.add("seq-done");       // прошедшие
+} else if (
+  document.getElementById("workBlock").style.display !== "none" && idx === step
+) {
+  span.classList.add("seq-current");    // текущий при работе
+} else if (
+  document.getElementById("restBlock").style.display !== "none" && idx === step
+) {
+  span.classList.add("seq-current");    // текущий при отдыхе (уже подсвечен как сделанный)
+}
+
+
     span.textContent = label;
     seqEl.appendChild(span);
   });
@@ -502,12 +820,11 @@ function updateRestTimer(){
 }
 
 function updateProgress(){
-  // We want overlay (grey) to shrink from full -> 0 as rest progresses.
-  // overlay offset = circumference * (1 - remainingFraction)
   if(!progressCircle) initCircles();
-  if(!progressCircle || circumference===0) return;
-  const remainingFraction = restTime / totalRestTime; // 1 -> full overlay, 0 -> none
-  const offset = circumference * (1 - remainingFraction); // 0..circumference
+  if(!progressCircle || circumference === 0) return;
+
+  const remainingFraction = restTime / totalRestTime; // от 1 до 0
+  const offset = circumference * remainingFraction;
   progressCircle.style.strokeDashoffset = offset;
 }
 
@@ -575,15 +892,17 @@ function startWorkoutShortcut(){
 
 /* initial flow */
 (function initApp(){
-  // init circles for progress
   initCircles();
-  // render home
-  renderHome();
+  if(!localStorage.getItem("pullupData")){
+    // первый заход → сразу тест
+    openTest();
+  } else {
+    renderHome();
+  }
 })();
+
 
 </script>
 </body>
 </html>
-
-
 
